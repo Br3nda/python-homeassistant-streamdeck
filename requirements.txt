@@ -1,0 +1,4 @@
+hidapi
+pillow
+aiohttp
+pyyaml
