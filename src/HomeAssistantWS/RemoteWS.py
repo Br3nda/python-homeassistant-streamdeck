@@ -42,7 +42,7 @@ class HomeAssistantWS(object):
     async def _receiver(self):
         async for message in self._websocket:
             message = json.loads(message.data) if message.type == aiohttp.WSMsgType.TEXT else None
-            logging.debug("Recieved: {}".format(message))
+            # logging.debug("Recieved: {}".format(message))
 
             if message is None:
                 continue
@@ -116,10 +116,10 @@ class HomeAssistantWS(object):
         response = await self._send_message(message)
         return response
 
-    async def set_state(self, domain, service, entity_id):
+    async def set_state(self, domain, service, service_data):
         message = {'type': 'call_service', 'domain': domain, 'service': service}
-        if entity_id is not None:
-            message['service_data'] = {'entity_id': entity_id}
+        if service_data is not None:
+            message['service_data'] = service_data
 
         response = await self._send_message(message)
         return response

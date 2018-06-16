@@ -8,6 +8,7 @@
 from .TileImage import TileImage
 
 import copy
+import logging
 
 
 class BaseTile(object):
@@ -24,7 +25,7 @@ class BaseTile(object):
 
     @property
     async def state(self):
-        return {'state' : None}
+        return {'state': None}
 
     async def get_image(self, force=True):
         state = await self.state
@@ -32,11 +33,12 @@ class BaseTile(object):
             return None
         self.old_state = state
 
-        state_tile = self.state_tiles.get(state.get('state'), self.state_tiles.get(None, {}))
+        state_tile = self.state_tiles.get(
+            state.get('state'), self.state_tiles.get(None, {}))
 
         format_dict = state
         format_dict['name'] = self.name
-
+        format_dict['state'] = format_dict.get('state', None)
         image_tile = self.image_tile
         image_tile.color = state_tile.get('color')
         image_tile.overlay = state_tile.get('overlay')
@@ -70,6 +72,7 @@ class HassTile(BaseTile):
             return
 
         if self.hass_action is not None:
+            logging.debug("we have a hass action to do")
             action = self.hass_action.split('/')
             if len(action) == 1:
                 domain = 'homeassistant'
@@ -77,5 +80,34 @@ class HassTile(BaseTile):
             else:
                 domain = action[0]
                 service = action[1]
+            await self.hass.set_state(domain=domain, service=service,
+                                      service_data={'entity_id': self.entity_id})
 
-            await self.hass.set_state(domain=domain, service=service, entity_id=self.entity_id)
+
+class ClimateTitle(HassTile):
+    async def button_state_changed(self, button_state):
+        if button_state is not True or self.hass_action is None:
+            return
+        logging.info("Climate button pushed")
+
+        logging.debug("we have a hass action to do")
+        domain = 'climate'
+        service = 'set_operation_mode'
+        state = await self.state
+
+        # Work out which mode is next in the list of possible modes
+        possible_modes = state.get('attributes').get('operation_list')
+        current_mode = state.get('attributes').get('operation_mode')
+        next_mode_index = possible_modes.index(current_mode) + 1
+        if next_mode_index >= len(possible_modes):
+            next_mode_index = 0
+        new_operation_mode = possible_modes[next_mode_index]
+
+        logging.info("Changing {} mode to {}".format(self.entity_id, new_operation_mode))
+
+        await self.hass.set_state(domain=domain, service=service,
+                                  service_data={
+                                      'entity_id': self.entity_id,
+                                      'operation_mode': new_operation_mode}
+                                  )
+        logging.debug("Done!")

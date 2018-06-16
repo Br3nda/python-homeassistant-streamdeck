@@ -25,6 +25,56 @@ tiles:
         overlay: 'Assets/Images/light_off.png'
     action: 'toggle'
 
+  - type: "heater"
+    class: 'HassTile'
+    states:
+      - state: 'on'
+        label: '{name}'
+        label_font: Assets/Fonts/Roboto-Bold.ttf
+        label_size: 12
+        overlay: 'Assets/Images/heater_on.png'
+      - state: ~
+        label: '{name}'
+        label_font: Assets/Fonts/Roboto-Bold.ttf
+        label_size: 12
+        overlay: 'Assets/Images/heater_off.png'
+    action: 'toggle'
+
+  - type: "climate"
+    class: 'ClimateTitle'
+    states:
+
+      - state: ~
+        label: '{name}'
+        label_font: 'Assets/Fonts/Roboto-Bold.ttf'
+        label_size: 12
+        overlay: 'Assets/Images/heater_off.png'
+        value: '{state}'
+        value_font: 'Assets/Fonts/Roboto-Light.ttf'
+        value_size: 18
+        
+      - state: 'heat'
+        label: '{name}'
+        overlay: 'Assets/Images/climate_heat.png'
+        value: '{state}'
+        value_font: 'Assets/Fonts/Roboto-Light.ttf'
+        value_size: 18
+
+      - state: 'idle'
+        label: '{name}'
+        overlay: 'Assets/Images/climate_idle.png'
+        value: '{state}'
+        value_font: 'Assets/Fonts/Roboto-Light.ttf'
+        value_size: 18
+
+      - state: 'off'
+        label: '{name}'
+        overlay: 'Assets/Images/climate_off.png'
+        value: '{state}'
+        value_font: 'Assets/Fonts/Roboto-Light.ttf'
+        value_size: 18
+
+    action: 'toggle'
   - type: "automation"
     class: 'HassTile'
     states:
